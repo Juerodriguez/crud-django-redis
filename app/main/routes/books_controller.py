@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.main.schemas.books_schema import Books
+from app.main.redis_client.crud import save_hash, delete_hash, get_hash
 
 api = APIRouter()
 fake_db = [{
@@ -14,6 +15,7 @@ fake_db = [{
 def create(books: Books):
     try:
         fake_db.append(books.dict())
+        save_hash(key=books.dict()["id"], data=books.dict())
         return books
     except Exception as e:
         return e
@@ -22,7 +24,12 @@ def create(books: Books):
 @api.get("/get/{id}")
 def get(id: str):
     try:
-        return list(filter(lambda field: field["id"] == id, fake_db))[0]
+        data = get_hash(key=id)
+        if len(data) == 0:
+            book = list(filter(lambda field: field["id"] == id, fake_db))[0]
+            save_hash(key=id, data=book)
+            return book
+        return data
     except Exception as e:
         return e
 
@@ -30,6 +37,8 @@ def get(id: str):
 @api.delete("/delete/{id}")
 def get(id: str):
     try:
+        keys = Books.__fields__.keys()
+        delete_hash(key=id, keys=keys)
         book = list(filter(lambda field: field["id"] == id, fake_db))[0]
         if len(book) != 0:
             fake_db.remove(book)
