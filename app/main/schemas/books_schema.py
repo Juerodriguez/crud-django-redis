@@ -12,7 +12,7 @@ def generate_date():
 
 
 class Books(BaseModel):
-    id: str = Field(default_factory=generate_uuid())
+    id: str = Field(default_factory=generate_uuid)
     name: str
     author: str
-    date: str = Field(default_factory=generate_date())
+    date: str = Field(default_factory=generate_date)
