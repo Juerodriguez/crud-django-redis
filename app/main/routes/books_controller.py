@@ -11,8 +11,13 @@ fake_db = [{
 }]
 
 
+@api.get("/")
+async def root():
+    return "Bienvenidos para visualizar la documentacion api ir a /docs"
+
+
 @api.post("/create", response_model=Books)
-def create(books: Books):
+async def create(books: Books):
     try:
         fake_db.append(books.dict())
         save_hash(key=books.dict()["id"], data=books.dict())
@@ -22,7 +27,7 @@ def create(books: Books):
 
 
 @api.get("/get/{id}")
-def get(id: str):
+async def get(id: str):
     try:
         data = get_hash(key=id)
         if len(data) == 0:
@@ -35,7 +40,7 @@ def get(id: str):
 
 
 @api.delete("/delete/{id}")
-def get(id: str):
+async def get(id: str):
     try:
         keys = Books.__fields__.keys()
         delete_hash(key=id, keys=keys)
