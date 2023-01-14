@@ -1,5 +1,7 @@
-from .connection import redis_client
+from .connection import connection_redis
 from redis.exceptions import ResponseError
+
+redis_client = connection_redis()
 
 
 def save_hash(key: str, data: dict):
