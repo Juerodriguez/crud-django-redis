@@ -31,10 +31,9 @@ def create(books: Books):
 
 
 @api.get("/get/{id}")
-def get(id: str):
+def get_all(id: str):
     try:
-        values = r.get(id)
-        response = json.loads(values)
+        response = json.loads(r.get(id))
 
         # The next work with redis external server
         """data = get_hash(key=id)
@@ -49,8 +48,19 @@ def get(id: str):
         return e
 
 
+@api.get("/get_all")
+def get_all():
+    try:
+        keys_iter = (json.loads(r.get(key)) for key in r.keys())
+        response = keys_iter
+
+        return response
+    except Exception as e:
+        return e
+
+
 @api.delete("/delete/{id}")
-def get(id: str):
+def delete_bykey(id: str):
     try:
         r.delete(id)
         book = list(filter(lambda field: field["id"] == id, fake_db))[0]
