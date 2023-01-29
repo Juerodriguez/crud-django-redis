@@ -14,9 +14,9 @@ def get_settings():
 def connection_redis(settings: config.Settings = Depends(get_settings)):
     try:
         redis_client = Redis(
-            host=settings.redis_host,
-            port=settings.redis_port,
-            password=settings.redis_password
+            host="redis", # settings.redis_host   This 3 for connection with redis service
+            port=6379 # settings.redis_port
+            # password=settings.redis_password
         )
         return redis_client
     except ConnectionError as e:

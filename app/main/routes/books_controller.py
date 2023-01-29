@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from app.main.schemas.books_schema import Books
 from app.main.redis_client.crud import save_hash, delete_hash, get_hash
+from app.main.redis_client.connection import connection_redis
+import json
 
 api = APIRouter()
 fake_db = [{
@@ -9,41 +11,48 @@ fake_db = [{
   "author": "Ricardo Casic",
   "date": "2023-01-13 16:19:46.318739"
 }]
+r = connection_redis()
 
 
 @api.get("/")
 async def root():
-    return "Bienvenidos para visualizar la documentacion api ir a /docs"
+    return {"messaje ": "Bienvenidos para visualizar la documentacion api ir a /docs"}
 
 
 @api.post("/create", response_model=Books)
-async def create(books: Books):
+def create(books: Books):
     try:
         fake_db.append(books.dict())
-        save_hash(key=books.dict()["id"], data=books.dict())
+        r.set(books.dict()["id"], json.dumps(books.dict()))
+        # save_hash(key=books.dict()["id"], data=books.dict())
         return books
     except Exception as e:
         return e
 
 
 @api.get("/get/{id}")
-async def get(id: str):
+def get(id: str):
     try:
-        data = get_hash(key=id)
+        values = r.get(id)
+        response = json.loads(values)
+
+        # The next work with redis external server
+        """data = get_hash(key=id)
         if len(data) == 0:
             book = list(filter(lambda field: field["id"] == id, fake_db))[0]
+            print(book)
             save_hash(key=id, data=book)
-            return book
-        return data
+            return book"""
+
+        return response
     except Exception as e:
         return e
 
 
 @api.delete("/delete/{id}")
-async def get(id: str):
+def get(id: str):
     try:
-        keys = Books.__fields__.keys()
-        delete_hash(key=id, keys=keys)
+        r.delete(id)
         book = list(filter(lambda field: field["id"] == id, fake_db))[0]
         if len(book) != 0:
             fake_db.remove(book)
