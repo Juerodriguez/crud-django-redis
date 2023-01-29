@@ -20,7 +20,7 @@ async def root():
 
 
 @api.post("/create", response_model=Books)
-def create(books: Books):
+async def create(books: Books):
     try:
         fake_db.append(books.dict())
         r.set(books.dict()["id"], json.dumps(books.dict()))
@@ -31,7 +31,7 @@ def create(books: Books):
 
 
 @api.get("/get/{id}")
-def get_all(id: str):
+async def get_id(id: str):
     try:
         response = json.loads(r.get(id))
 
@@ -49,7 +49,7 @@ def get_all(id: str):
 
 
 @api.get("/get_all")
-def get_all():
+async def get_all():
     try:
         keys_iter = (json.loads(r.get(key)) for key in r.keys())
         response = keys_iter
@@ -60,7 +60,7 @@ def get_all():
 
 
 @api.delete("/delete/{id}")
-def delete_bykey(id: str):
+async def delete_id(id: str):
     try:
         r.delete(id)
         book = list(filter(lambda field: field["id"] == id, fake_db))[0]

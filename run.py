@@ -3,4 +3,4 @@ from app.main.routes.books_controller import api
 
 
 app = create_app()
-app.include_router(api, prefix="/books")
+app.include_router(api, prefix="/books", tags=["Books CRUD"])
